@@ -9,6 +9,11 @@ header {
 	margin: 0;
 	padding: 20px;
 	text-align: center;
+	border-bottom: 5px solid green;
+}
+h1 {
+	font-family: 'Poiret One', cursive;
+	font-size: 42px;
 }
 .hidden {
 	display: none;
@@ -17,7 +22,6 @@ header {
 	display: block;
 }
 .selected {
-	/*background-color: black;*/
 	color: red;
 }
 #main {
@@ -28,9 +32,11 @@ header {
 	width: 95%;
 	margin: 0 auto;
 	height: 40px;
+	text-align: right;
 }
 #welcomeMessage h2 {
 	font-size: 18px;
+	color: #16B8CB;
 }
 #logout {
 	width: 95%;
@@ -52,6 +58,9 @@ header {
 	padding: 2px 10px;
 	margin: 5px;
 }
+#logoutButton {
+	width: 175px;
+}
 #loginButton:hover,
 #signupButton:hover,
 #logoutButton:hover {
@@ -72,11 +81,13 @@ header {
 	width: 95%;
 	margin: 0 auto;
 	border-bottom: 3px solid #07616A;
+	font-family: 'Poiret One', cursive;
 }
 #sectionTitles h2 {
 	width: 33%;
 	float: left;
 	border-bottom: 3px solid #07616A;
+	padding-bottom: 10px;
 }
 #myJournalsDiv button,
 #myEntriesDiv button,
@@ -101,9 +112,6 @@ header {
 	padding: 10px;
 	margin: 2px 0 15px 0;
 }
-#newEntryDiv label {
-
-}
 #newJournalButton button,
 #newEntryButton button,
 #entryDataButton button {
@@ -122,4 +130,27 @@ header {
 	border: 3px solid #16B8CB;
 	background: #16B8CB;
 	color: #eee;
+}
+#entryDataButton .saveButton {
+	float: right;
+	border: 3px solid #0D7310;
+	background-color: #0D7310;
+}
+#entryDataButton .saveButton:hover {
+	border: 3px solid #12B317;
+	background-color: #12B317;
+}
+#entryDataButton .deleteButton {
+	float: left;
+	border: 3px solid #910000;
+	background-color: #910000;
+
+}
+#entryDataButton .deleteButton:hover {
+	border: 3px solid #BF0000;
+	background-color: #BF0000;
+
+}
+#newEntryDiv textarea {
+	min-height: 150px;
 }

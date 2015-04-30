@@ -40,34 +40,74 @@ var currentEntryIndex = 0;
 
 // Handles the logging in
 function loginHandler(){
-	user.set("username", usernameField.value);
-	user.set("password", passwordField.value);
-	user.logIn({
-		success:function (user){
-			console.log("login worked");
-			currentUser = Parse.User.current();
-			loggedIn();
-		}, 
-		error: function (user, error){
-			console.log("error "+ error.code);
-		}
-	});
+	if((usernameField.value != "") & (passwordField.value != "")){
+		console.log("logging in...");
+		user.set("username", usernameField.value);
+		user.set("password", passwordField.value);
+		user.logIn({
+			success:function (user){
+				console.log("login worked");
+				currentUser = Parse.User.current();
+				loggedIn();
+			}, 
+			error: function (user, error){
+				console.log("error "+ error.code);
+			}
+		});
+	} else if((usernameField.value == "") && (passwordField.value != "")) {
+		alert("Please enter your username");
+	} else if((usernameField.value != "") && (passwordField.value == "")) {
+		alert("Please enter your password");
+	} else {
+		alert("Error");
+	}
 }
 
 // Handles the signing up
 function signupHandler(){
-	user.set("username", usernameField.value);
-	user.set("password", passwordField.value);
-	user.signUp(null, {
-		success:function (user){
-			console.log("signup worked");
-			currentUser = Parse.User.current();
-			loggedIn();
-		}, 
-		error: function (user, error){
-			console.log("error "+ error.code);
-		}
-	});
+
+	if((usernameField.value != "") && (passwordField.value != "")){
+		console.log("signing up...");
+
+		// var query = new Parse.Query(user);
+		// query.equalTo("username", usernameField.value);
+		// query.find({
+		// 	success: function (results){
+		// 		// unique
+				
+		// 	},
+		// 	error:function(error){
+		// 		alert("Something went wrong: error is " + error.message);
+		// 	}
+		// });
+
+		// if (unique){
+			user.set("username", usernameField.value);
+			user.set("password", passwordField.value);
+			user.signUp(null, {
+				success:function (user){
+					console.log("signup worked");
+					currentUser = Parse.User.current();
+					loggedIn();
+				}, 
+				error: function (user, error){
+					console.log("error "+ error.message+" "+error.code);
+					if (error.code ==202){
+						
+					}
+				}
+			});
+		// }
+		
+
+		
+	} else if((usernameField.value == "") && (passwordField.value != "")) {
+		alert("Please enter a username");
+	} else if((usernameField.value != "") && (passwordField.value == "")) {
+		alert("Please enter a password");
+	} else {
+		alert("Error");
+	}
 }
 
 // Handles the logging out
@@ -140,30 +180,32 @@ function buildNewJournalButton(){
 		var journalData = new JournalData ();
 		var journalsRelation = user.relation("userJournals");
 		var newJournalTitle = prompt("Enter the new journal's title.");
-		currentJournalIndex = 0;
-		currentEntryIndex = 0;
 
-		journalData.save({
-			journalTitle: newJournalTitle,
-		}, 
-		{
-			success: function(results){
-				console.log("Created new journal");
-				journalsRelation.add(journalData);
-				user.save(null, {
-					success: function (results){
-						refreshJournalsSection();
-					},
-					error:function(error){
-						alert("Something went wrong: error is " + error.message);
-					}
-				});
-			},
-			error: function(error){
-				console.log("Error creating new journal. Error: " + error);
-			}
-		});
+		if(newJournalTitle != null){
+			currentJournalIndex = 0;
+			currentEntryIndex = 0;
 
+			journalData.save({
+				journalTitle: newJournalTitle,
+			}, 
+			{
+				success: function(results){
+					console.log("Created new journal");
+					journalsRelation.add(journalData);
+					user.save(null, {
+						success: function (results){
+							refreshJournalsSection();
+						},
+						error:function(error){
+							alert("Something went wrong: error is " + error.message);
+						}
+					});
+				},
+				error: function(error){
+					console.log("Error creating new journal. Error: " + error);
+				}
+			});
+		}
 	});
 	newJournalButton.appendChild(button);
 }
@@ -396,12 +438,21 @@ var Entry = function(data, journalSelf, index){
 		self.entryTextInput.value = self.entryText;
 		var saveButton = document.createElement("button");
 		var saveLabel = document.createTextNode("Save");
+		var deleteButton = document.createElement("button");
+		var deleteLabel = document.createTextNode("Delete");
 		saveButton.appendChild(saveLabel);
 		saveButton.className = "saveButton";
+		deleteButton.appendChild(deleteLabel);
+		deleteButton.className = "deleteButton";
 
 		saveButton.addEventListener('click', function(event){
 			self.saveEntry(self.entryTitleName, self.entryTitleInput.value, self.entryTextInput.value, entriesData, journalSelf);
 			currentEntryIndex = self.index;
+		});
+
+		deleteButton.addEventListener('click', function(event){
+			self.deleteEntry(self.entryTitleName, entriesData, journalSelf);
+			currentEntryIndex = 0;
 		});
 
 		newEntryDiv.appendChild(self.entryTitleLabel);
@@ -409,6 +460,7 @@ var Entry = function(data, journalSelf, index){
 		newEntryDiv.appendChild(self.entryTextLabel);
 		newEntryDiv.appendChild(self.entryTextInput);
 		entryDataButton.appendChild(saveButton);
+		entryDataButton.appendChild(deleteButton);
 	}
 
 	// Saving any changes in the "Entry Content" section
@@ -428,19 +480,72 @@ var Entry = function(data, journalSelf, index){
 						entriesData.set("entryText", newText);
 						entriesData.save(null, {
 							success: function (results){
-								alert("Saved!");
+								
+								new jBox('Notice', {
+									content: 'Saved Entry',
+									color: "red",
+									attributes: { // Notices have a fixed position, that's why you need to change the attribute option to move them
+										x: 'right',
+										y: 'bottom'
+									},
+									autoClose: 3000
+								});
+
 								myEntriesDiv.innerHTML = "";
 								newEntryButton.innerHTML = "";
 								newEntryDiv.innerHTML = "";
 								entryDataButton.innerHTML = "";
 								refreshEntriesSection(journalSelf, self);
-								refreshNewEntrySection(newTitle, entriesData)
+								refreshNewEntrySection(newTitle, entriesData);
 							},
 							error:function(error){
 								alert("Something went wrong: error is " + error.message);
 							}
 						});
 					}
+				}	
+			},
+			error: function(error){
+				alert("Something went wrong: error is " + error.message);
+			}
+		});
+	}
+
+
+	self.deleteEntry = function(title, entriesData, journalSelf){
+		console.log("deleteEntry function start");
+
+		var entriesRelation = journalSelf.data.relation("userEntries");
+		var queryOfRelation = entriesRelation.query();
+		queryOfRelation.equalTo("entryTitle", title);
+		queryOfRelation.find({
+			success: function (results){
+				console.log("entriesRelation query success");
+				for (var i=0; i<results.length; i++){
+					results[i].destroy({
+						success: function(myObject) {
+							
+							new jBox('Notice', {
+								content: 'Deleted Entry',
+								color: "red",
+								attributes: { // Notices have a fixed position, that's why you need to change the attribute option to move them
+									x: 'right',
+									y: 'bottom'
+								},
+								autoClose: 3000
+							});
+
+							myEntriesDiv.innerHTML = "";
+							newEntryButton.innerHTML = "";
+							newEntryDiv.innerHTML = "";
+							entryDataButton.innerHTML = "";
+							refreshEntriesSection(journalSelf, self);
+							refreshNewEntrySection(null, entriesData);
+						},
+						error: function(myObject, error) {
+							alert("Something went wrong: error is " + error.message);
+						}
+					});
 				}	
 			},
 			error: function(error){
@@ -457,7 +562,7 @@ var user = new Parse.User();
 if (Parse.User.current()) {
 	user = Parse.User.current();
     loggedIn();
-}
+};
 
 
 
