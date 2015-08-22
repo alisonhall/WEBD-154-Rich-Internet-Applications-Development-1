@@ -65,41 +65,23 @@ function loginHandler(){
 
 // Handles the signing up
 function signupHandler(){
-
 	if((usernameField.value != "") && (passwordField.value != "")){
 		console.log("signing up...");
-
-		// var query = new Parse.Query(user);
-		// query.equalTo("username", usernameField.value);
-		// query.find({
-		// 	success: function (results){
-		// 		// unique
-				
-		// 	},
-		// 	error:function(error){
-		// 		alert("Something went wrong: error is " + error.message);
-		// 	}
-		// });
-
-		// if (unique){
-			user.set("username", usernameField.value);
-			user.set("password", passwordField.value);
-			user.signUp(null, {
-				success:function (user){
-					console.log("signup worked");
-					currentUser = Parse.User.current();
-					loggedIn();
-				}, 
-				error: function (user, error){
-					console.log("error "+ error.message+" "+error.code);
-					if (error.code ==202){
-						
-					}
+		user.set("username", usernameField.value);
+		user.set("password", passwordField.value);
+		user.signUp(null, {
+			success:function (user){
+				console.log("signup worked");
+				currentUser = Parse.User.current();
+				loggedIn();
+			}, 
+			error: function (user, error){
+				console.log("error "+ error.message+" "+error.code);
+				if (error.code ==202){
+					alert(error.message);
 				}
-			});
-		// }
-		
-
+			}
+		});
 		
 	} else if((usernameField.value == "") && (passwordField.value != "")) {
 		alert("Please enter a username");
@@ -335,7 +317,6 @@ var Journal = function(data, index){
 		self.journalTitle.appendChild(journalLabel);
 		myJournalsDiv.appendChild(self.journalTitle);
 
-		// Build default journal entries
 		if(self.index == currentJournalIndex){
 			currentJournal = journalSelf;
 			self.findJournalEntries(journalSelf);
@@ -371,7 +352,6 @@ var Journal = function(data, index){
 	}
 
 	self.makeJournals(self);
-
 }
 
 
@@ -511,7 +491,7 @@ var Entry = function(data, journalSelf, index){
 		});
 	}
 
-
+	// Delete the entry
 	self.deleteEntry = function(title, entriesData, journalSelf){
 		console.log("deleteEntry function start");
 
@@ -563,16 +543,3 @@ if (Parse.User.current()) {
 	user = Parse.User.current();
     loggedIn();
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
